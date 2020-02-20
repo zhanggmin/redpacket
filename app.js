@@ -1,14 +1,22 @@
 //app.js
 var md5 = require('utils/md5.js')
 var loginInfo={};
+var qcloud = require('./vendor/wafer2-client-sdk/index');
 App({
   setConfig: { 
-    url: '',
+    url: 'http://192.168.0.104/bns/public/api/bns',
+    file_url: 'http://192.168.0.104/bns/public',
     hb_appid: 'hb_gnpu',
     hb_appsecret: 'KXsC5gqCr52O2nDw'
     },
   onLaunch: function () {
-    this.userLogin();
+    qcloud.setLoginUrl(this.setConfig.url+'/public/login');
+    var session = qcloud.Session.get();
+    if (session && session.hasOwnProperty("userinfo")) {
+      this.globalData.userInfo = session.userinfo;
+    } else {
+      this.userLogin();
+    }
   },
   globalData: {
     userInfo: null,
@@ -46,22 +54,20 @@ App({
                     var infoUser = '';
                     that.globalData.userInfo = infoUser = res.userInfo;
                     // 所以此处加入 callback 以防止这种情况
-                    if (that.userInfoReadyCallback) {
-                      that.userInfoReadyCallback(res)
-                    }
+                   
                     //用户信息入库
-                    var url = that.setConfig.url + '/index.php/User/login/dologin';
-                    var data = {
-                      user_name: infoUser.nickName,
-                      nick_name: infoUser.nickName,
-                      head_img: infoUser.avatarUrl,
-                      sex: infoUser.gender,
-                      coutry: infoUser.country,
-                      city: infoUser.city,
-                      province: infoUser.province,
-                      code: codes,
-                    }
-                    that.postLogin(url, data);
+                    qcloud.login({
+                      success(result) {
+                        console.log(result);
+                        that.globalData.userInfo = result;
+                        if (that.userInfoReadyCallback) {
+                          that.userInfoReadyCallback(res)
+                        }
+                      },
+                      fail(error) {
+                        that.showModel('登录失败', error);
+                      }
+                    });
                   }
                 })
               }else{
@@ -79,18 +85,19 @@ App({
                           that.userInfoReadyCallback(res)
                         }
                         //用户信息入库
-                        var url = that.setConfig.url + '/index.php/User/login/dologin';
-                        var data = {
-                          user_name: infoUser.nickName,
-                          nick_name: infoUser.nickName,
-                          head_img: infoUser.avatarUrl,
-                          sex: infoUser.gender,
-                          coutry: infoUser.country,
-                          city: infoUser.city,
-                          province: infoUser.province,
-                          code: codes,
-                        }
-                        that.postLogin(url, data);
+                        //用户信息入库
+                        qcloud.loginWithCode({
+                          success(result) {
+                            that.globalData.userInfo = result;
+                            console.log(result);
+                            if (that.userInfoReadyCallback) {
+                              that.userInfoReadyCallback(result)
+                            }
+                          },
+                          fail(error) {
+                            that.showModel('登录失败', error);
+                          }
+                        }); 
                       }
                     })
                   }
@@ -107,30 +114,50 @@ App({
   },
   
   //提交
-  postLogin: function (url,data,callback=function(){}){
+  postLogin: function (url, data, callback = function () { }, failCallback = function () { }, completeCallback = function () { }){
     var that = this;
-    var signData = this.getSign();
-    data.sign = signData.sign;
-    data.timestamp = signData.timestamp;
-    //发起网络请求
-    wx.request({
+    qcloud.request({
+      // 要请求的地址
       url: url,
       data: data,
-      method: 'POST',
-      header: { 'content-type': 'application/x-www-form-urlencoded;charset=utf-8' },
-      success: function (res) {
-        if (res.data.code != 20000) {
-          wx.showToast({
-            title: res.data.msg,
-            icon: 'loading',
-            duration: 1500
-          })
-          if (res.data.code == 40500) { callback(res); }
-          return false;
-        }
-        if (res.data.token) { that.globalData.token = res.data.token; }
-        callback(res);
+      success(result) {
+        console.log('request success', result);
+        callback(result);
+      },
+      fail(error) {
+        console.log('request fail', error);
+        failCallback(error);
+      },
+      complete() {
+        console.log('request complete');
+        completeCallback();
       }
+    });
+  },
+  // 显示繁忙提示
+  showBusy: function (text) {
+    wx.showToast({
+      title: text,
+      icon: 'none',
+      duration: 3000
     })
+  },
+  // 显示成功提示
+  showSuccess: function (text) {
+    wx.showToast({
+      title: text,
+      icon: 'success'
+    })
+  },
+  // 显示失败提示
+  showModel: function (title, content) {
+    {
+      wx.hideToast();
+      wx.showModal({
+        title,
+        content: JSON.stringify(content),
+        showCancel: false
+      });
+    } 
   }
 })

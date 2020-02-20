@@ -105,7 +105,7 @@ Page({
     this.loop()
   },
   loop:function(){
-    if (!app.globalData.token) {
+    if (!app.globalData.userInfo) {
       var that = this
       setTimeout(function () { that.loop(); }, 100)
     } else {
@@ -128,7 +128,7 @@ Page({
       title: '加载中•••'
     })
     var tok = this.data.token;
-    var postUrl = app.setConfig.url + '/index.php?g=Api&m=Enve',
+    var postUrl = app.setConfig.url + '/pintu/mysend',
         pag = this.data.pagel + 1,
         postData = {
           page: pag,
@@ -138,8 +138,8 @@ Page({
   },
   // 发出的
   initial: function (res) {
-    if (res.data.code == 20000) {
-      var datas = res.data;
+    if (res.data.code == 1) {
+      var datas = res.data.data;
       if (datas.data.lenght==0){
         this.setData({
           pagel: -1
@@ -182,7 +182,7 @@ Page({
   },
   //收到的
   reciveList:function(res){
-    if (res.data.code == 20000){
+    if (res.data.code == 1){
       var datas = res.data;
       if (datas.data.lenght == 0) {
         this.setData({

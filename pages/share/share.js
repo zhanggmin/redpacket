@@ -107,7 +107,7 @@ Page({
     })
 
     //二维码
-    var postUrl = app.setConfig.url + '/index.php?g=Api&m=ToCode&a=getQrcode',
+    var postUrl = app.setConfig.url + '/ToCode/getQrcode',
       postData = {
         token: tok,
         tit: this.data.redtips,
@@ -115,7 +115,10 @@ Page({
         con: this.data.describe,
         page: 'pages/recordDetails/recordDetails'
       };
-    app.postLogin(postUrl, postData, this.setCode);
+    app.postLogin(postUrl, postData, this.setCode, function () { }, function (comp) {
+      app.showModel('错误', comp);
+      wx.hideLoading();
+    });
   },
   setCode: function(res){
     if(res.data.code === 20000){

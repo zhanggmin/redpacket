@@ -77,7 +77,7 @@ Page({
     this.loop(pid);
   },
   loop:function(pid){
-    if (!app.globalData.token){
+    if (!app.globalData.userInfo){
       var that = this
       setTimeout(function () { that.loop(pid);},100)
     }else{
@@ -99,7 +99,7 @@ Page({
         })
       }
 
-      var postUrl = app.setConfig.url + '/index.php?g=Api&m=Enve&a=enveDetail',
+      var postUrl = app.setConfig.url + '/pintu/enveDetail',
           postData = {
             id: pid,
             token: tok
@@ -111,7 +111,7 @@ Page({
   //数据初始化
   initial:function(res){
     wx.stopPullDownRefresh();
-    if(res.data.code == 20000){
+    if(res.data.code == 1){
       var data = res.data.data;
       var vos = data.receive,
           status = data.status,
@@ -167,10 +167,12 @@ Page({
         hint: hint,
         receiveJE: data.receive_amount,
         hasUserInfo: true
-      })
-      wx.hideLoading();
+      })      
       this.addLattice()
+    }else{
+      app.showModel('错误', res.data.msg)
     }
+    wx.hideLoading();
   },
 
 

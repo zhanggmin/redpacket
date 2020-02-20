@@ -35,7 +35,7 @@ Page({
     this.loop()
   },
   loop: function () {
-    if (!app.globalData.token) {
+    if (!app.globalData.userInfo) {
       var that = this
       setTimeout(function () { that.loop(); }, 100)
     } else {

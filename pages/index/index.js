@@ -11,19 +11,19 @@ Page({
     hidden:true,
     indexHots:[
       {
-        'slide_pic': app.setConfig.url + '/data/upload/default/20190304/5c7c917ac49c4.png'
+        'slide_pic': app.setConfig.file_url + '/upload/pintu/5c7c917ac49c4.png'
       },
       {
-        'slide_pic': app.setConfig.url + '/data/upload/admin/20180301/5a97bfbd94703.jpg'
+        'slide_pic': app.setConfig.file_url + '/upload/pintu/5a97bfbd94703.jpg'
       },
       {
-        'slide_pic': app.setConfig.url + '/data/upload/admin/20180228/5a96b75a07405.jpg'
+        'slide_pic': app.setConfig.file_url + '/upload/pintu/5a96b75a07405.jpg'
       },
       {
-        'slide_pic': app.setConfig.url + '/data/upload/admin/20180301/5a97c08c1d8ca.jpg'
+        'slide_pic': app.setConfig.file_url + '/upload/pintu/5a97c08c1d8ca.jpg'
       },
       {
-        'slide_pic': app.setConfig.url + '/data/upload/admin/20180301/5a97c18567c58.jpg'//变态难度
+        'slide_pic': app.setConfig.file_url + '/upload/pintu/5a97c18567c58.jpg'//变态难度
       }
     ]
   },

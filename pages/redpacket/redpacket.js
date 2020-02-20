@@ -193,9 +193,7 @@ Page({
       return false
     }
     
-    //登录信息验证
-    var tok = app.globalData.token;
-    if (!tok){return false;}
+  
     wx.showLoading({
       title: '正在提交',
       mask: true
@@ -219,7 +217,7 @@ Page({
     //     })
     //     var src = JSON.parse(res.data).file_url;
         //提交信息
-        var postUrl = app.setConfig.url + '/index.php/Api/Enve/saveEnve',
+        var postUrl = app.setConfig.url + '/pintu/saveEnve',
           postData = {
             quest: valkl,
             amount: valsj,
@@ -227,9 +225,16 @@ Page({
             type: mode,
             pic_dir:src,
             form_id: formid,
-            token: tok
           };
-        app.postLogin(postUrl, postData, that.saveEnve);
+    app.postLogin(postUrl, postData, that.saveEnve, function (err) {
+      app.showModel('错误', err);
+      wx.hideLoading();
+
+    },
+      function (comp) {
+        app.showModel('错误', comp);
+        wx.hideLoading();
+      });
         return false;
     //   }
     // })
@@ -294,7 +299,7 @@ Page({
   saveEnve:function(res){
     var that = this;
     console.log(res)
-    if(res.data.code===20000){
+    if(res.data.code===1){
       var payInfo = res.data.data;
       var pid = payInfo.pid;
       if (payInfo.pay_type == 2){
@@ -321,14 +326,7 @@ Page({
           wx.navigateTo({
             url: '../share/share?cid=0'
           })
-        }, 1000)
-        var postUrlTZ = app.setConfig.url + '/index.php?g=Api&m=Enve&a=sendCreateEnveNotify',
-          postDataTZ = {
-            token: app.globalData.token,
-            prepay_id: payInfo.prepay_id,
-            pid: payInfo.pid
-          };
-        app.postLogin(postUrlTZ, postDataTZ);
+        }, 1000)       
       }else{
         wx.requestPayment({
           'timeStamp': payInfo.timeStamp,
@@ -359,14 +357,7 @@ Page({
               wx.navigateTo({
                 url: '../share/share?cid=0'
               })
-            },1000)
-            var postUrlTZ = app.setConfig.url + '/index.php?g=Api&m=Enve&a=sendCreateEnveNotify',
-              postDataTZ = {
-                token: app.globalData.token,
-                prepay_id: payInfo.prepay_id,
-                pid: payInfo.pid
-              };
-            app.postLogin(postUrlTZ, postDataTZ);
+            },1000)           
           },
           'fail': function (res) {
             // 支付失败
@@ -391,9 +382,8 @@ Page({
   },
   
   loop: function () {  
-    var info = app.globalData.userInfo,
-        tok = app.globalData.token;
-    if (info && !this.data.hasUserInfo){
+    var info = app.globalData.userInfo;
+    if (info){
       wx.showLoading({
         title: '数据初始化',
         mask: true
@@ -403,24 +393,24 @@ Page({
         hasUserInfo: true
       })
     }
-    if (!tok) {
+    if (!info) {
       var that = this
       setTimeout(function () { that.loop(); }, 100)
-    } else {
-      this.setData({
-        token: tok
-      })
-      var postUrl = app.setConfig.url + '/index.php?g=User&m=Consumer&a=userInfo',
-        postData = {
-          token: tok
-        };
-      app.postLogin(postUrl, postData, this.initial);
+    } else {     
+      var postUrl = app.setConfig.url + '/user/userInfo';       
+      app.postLogin(postUrl, [], this.initial,function(err){
+        app.showModel('错误', err)
+
+      },
+      function(comp){
+        app.showModel('错误', comp)
+      });
     }
   },
   
   initial: function (res) {
     wx.hideLoading()
-    if (res.data.code == 20000) {
+    if (res.data.code == 1) {
       var data = res.data.data;
       var difficulty = !data.difficulty ? true : false;
       maxsum = !data.hb_max_amount ? 50000 : data.hb_max_amount;            // 最大赏金

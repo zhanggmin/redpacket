@@ -161,16 +161,16 @@ Page({
   },
 
   onLoad: function () {
-    if (!app.globalData.token) {
-      wx.showLoading({
-        title: '加载中•••',
-        mask: true
-      })
-    }
+    
+    wx.showLoading({
+      title: '加载中•••',
+      mask: true
+    })
+   
     this.loop()
   },
   loop: function () {
-    if (!app.globalData.token) {
+    if (!app.globalData.userInfo) {
       var that = this
       setTimeout(function () { that.loop(); }, 100)
     } else {
